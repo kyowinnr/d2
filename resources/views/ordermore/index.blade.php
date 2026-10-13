@@ -877,15 +877,18 @@
         <p>旅客：<strong id="copyCustomerName"></strong></p>
         <input type="hidden" name="customer_id" id="copyCustomerId">
 
-        <label for="copyTargetOrder" style="display:block;margin-bottom:8px;">目標訂單</label>
-        <select name="target_order_id" id="copyTargetOrder" class="form-select" required style="width:100%;margin-bottom:18px;">
-            <option value="">請選擇目標訂單</option>
-            @foreach ($ordersForCopy as $copyOrder)
-                <option value="{{ $copyOrder->OrderId }}">
-                    訂單 #{{ $copyOrder->OrderId }}｜{{ $copyOrder->GroupName }}｜{{ $copyOrder->OrderStart }}
-                </option>
-            @endforeach
-        </select>
+        <label for="copyTargetOrder" style="display:block;margin-bottom:8px;">請輸入目標訂單編號</label>
+        <input
+            type="text"
+            name="target_order_id"
+            id="copyTargetOrder"
+            class="form-control"
+            maxlength="20"
+            required
+            autocomplete="off"
+            placeholder="請輸入完整訂單編號"
+            style="width:100%;margin-bottom:8px;">
+        <small style="display:block;color:#475569;margin-bottom:18px;">送出後系統會先確認訂單存在；找不到訂單時不會複製資料。</small>
 
         <div style="display:flex;justify-content:flex-end;gap:8px;">
             <button type="button" class="btn btn-light" onclick="document.getElementById('copyCustomerDialog').close()">取消</button>
@@ -899,6 +902,7 @@
         document.getElementById('copyCustomerId').value = customerId;
         document.getElementById('copyCustomerName').textContent = customerName || '';
         document.getElementById('copyTargetOrder').value = '';
+        document.getElementById('copyTargetOrder').setCustomValidity('');
         document.getElementById('copyCustomerDialog').showModal();
     }
 </script>
