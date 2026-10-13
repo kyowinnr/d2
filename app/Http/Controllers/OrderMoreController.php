@@ -324,6 +324,13 @@ class OrderMoreController extends Controller
         $validated = $request->validate([
             'customer_id' => 'required|integer|exists:customer,CusId',
             'target_order_id' => 'required|string|max:20|exists:order,OrderId',
+        ], [
+            'customer_id.required' => '找不到要複製的旅客，請重新操作。',
+            'customer_id.exists' => '找不到要複製的旅客，請重新操作。',
+            'target_order_id.required' => '請輸入目標訂單編號。',
+            'target_order_id.string' => '訂單編號格式不正確。',
+            'target_order_id.max' => '訂單編號不可超過 20 個字元。',
+            'target_order_id.exists' => '查無此訂單，請確認訂單編號；未複製任何資料。',
         ]);
 
         $customer = DB::table('customer')
@@ -369,7 +376,7 @@ class OrderMoreController extends Controller
 
         return redirect()
             ->route('ordermore.index', ['orderId' => $sourceOrderId])
-            ->with('status', '旅客資料已複製到目標訂單。');
+            ->with('status', '旅客資料已成功複製到訂單「' . $targetOrderId . '」。');
     }
 
     public function destroy(Request $request, $OrderTrafficId)
