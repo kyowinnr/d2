@@ -907,4 +907,20 @@
     }
 </script>
 
+@if (session('status'))
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        alert(@json(session('status')));
+    });
+</script>
+@endif
+
+@if ($errors->any())
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        alert(@json($errors->first()));
+    });
+</script>
+@endif
+
 @endsection
