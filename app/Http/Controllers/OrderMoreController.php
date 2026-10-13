@@ -65,13 +65,6 @@ class OrderMoreController extends Controller
              
                
        // 可供複製旅客使用的目標訂單（排除目前訂單）
-       $ordersForCopy = DB::table('order')
-           ->select('OrderId', 'GroupName', 'OrderStart')
-           ->where('OrderId', '!=', $orderId)
-           ->orderBy('OrderStart', 'DESC')
-           ->orderBy('OrderId', 'DESC')
-           ->get();
-
        //所有名單        
        $customers = DB::table('customer')
                ->join('sex', 'customer.Sex', '=', 'sex.SexId') // 聯接 sex 表
@@ -85,7 +78,7 @@ class OrderMoreController extends Controller
         $customer->isValid = $this->isValidID($customer->ID); // 將驗證結果存到 isValid 屬性
     }     
        
-          return view('ordermore.index', compact('order','continents','locations','traffics','ordertraffics','customers','tickettypes','local1','local2','ordertours','ordersForCopy'));
+          return view('ordermore.index', compact('order','continents','locations','traffics','ordertraffics','customers','tickettypes','local1','local2','ordertours'));
       
     
     }    
@@ -330,7 +323,7 @@ class OrderMoreController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'required|integer|exists:customer,CusId',
-            'target_order_id' => 'required|integer|exists:order,OrderId',
+            'target_order_id' => 'required|string|max:20|exists:order,OrderId',
         ]);
 
         $customer = DB::table('customer')
@@ -342,9 +335,9 @@ class OrderMoreController extends Controller
         }
 
         $sourceOrderId = $customer->OrderId;
-        $targetOrderId = (int) $validated['target_order_id'];
+        $targetOrderId = (string) $validated['target_order_id'];
 
-        if ((int) $sourceOrderId === $targetOrderId) {
+        if ((string) $sourceOrderId === $targetOrderId) {
             return redirect()
                 ->route('ordermore.index', ['orderId' => $sourceOrderId])
                 ->withErrors(['target_order_id' => '不能複製到原本的訂單。']);
