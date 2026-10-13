@@ -360,20 +360,14 @@ class OrderMoreController extends Controller
                 abort(404);
             }
 
-            DB::table('customer')->insert([
-                'OrderId' => $targetOrderId,
-                'Name' => $customer->Name,
-                'Birthday' => $customer->Birthday,
-                'ID' => $customer->ID,
-                'Sex' => $customer->Sex,
-                'TicketType' => $customer->TicketType,
-                'Phone' => $customer->Phone,
-                'Ps' => $customer->Ps,
-                'CarNo' => null,
-                'CarNo2' => null,
-                'Cancel' => 0,
-                'TM' => 0,
-            ]);
+            // 複製 customer 的所有欄位；只排除原旅客主鍵 CusId，
+            // 並將 OrderId 改成目標訂單編號，其餘欄位（護照、機票、PNR、
+            // 票種、車號、取消狀態、備註等）全部保留原值。
+            $customerData = (array) $customer;
+            unset($customerData['CusId']);
+            $customerData['OrderId'] = (string) $targetOrderId;
+
+            DB::table('customer')->insert($customerData);
 
             DB::table('order')
                 ->where('OrderId', $targetOrderId)
