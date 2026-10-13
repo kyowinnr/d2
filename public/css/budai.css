@@ -1,0 +1,35 @@
+/* CSS Document */
+/* public/css/budai.css */
+
+.table-hover tbody tr:hover td {
+    background-color: #FFFF37 !important; /* 懸停時背景顏色 */
+}
+
+.bg-32 {
+    background-color: #ffcc00; /* TrafficId 32 背景顏色 */
+}
+
+.bg-34 {
+    background-color: #ccffcc; /* TrafficId 34 背景顏色 */
+}
+
+.bg-35 {
+    background-color: #ccccff; /* TrafficId 35 背景顏色 */
+}
+
+.bg-33 {
+    background-color: #ffffcc; /* TrafficId 33 背景顏色 */
+}
+
+.bg-74 {
+    background-color: #ffcc99; /* TrafficId 74 背景顏色 */
+}
+
+.table-center {
+    width: 70%;            /* 設定表格寬度為 70% */
+    margin: 0 auto;        /* 設定表格水平居中 */
+    text-align:center;
+    table-layout: fixed;
+}
+
+

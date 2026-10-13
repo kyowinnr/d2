@@ -1,0 +1,51 @@
+# Laravel environment and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Laravel runtime files
+/storage/*.key
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*.php
+
+# Logs
+*.log
+
+# Local development
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Test and generated files
+.phpunit.result.cache
+/public/hot
+/public/build
+
+# Local SQLite database
+/database/*.sqlite
+/database/*.sqlite-*
+
+
+
+# Laravel runtime files
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/storage/app/private/*
+/storage/app/public/*
+/bootstrap/cache/*.php
+
+# Local database files
+/database/database.sqlite
+/database/*.sqlite
+/database/*.sqlite-*
