@@ -64,6 +64,14 @@ class OrderMoreController extends Controller
                ->get(); // 取得所有符合條件的資料 
              
                
+       // 可供複製旅客使用的目標訂單（排除目前訂單）
+       $ordersForCopy = DB::table('order')
+           ->select('OrderId', 'GroupName', 'OrderStart')
+           ->where('OrderId', '!=', $orderId)
+           ->orderBy('OrderStart', 'DESC')
+           ->orderBy('OrderId', 'DESC')
+           ->get();
+
        //所有名單        
        $customers = DB::table('customer')
                ->join('sex', 'customer.Sex', '=', 'sex.SexId') // 聯接 sex 表
@@ -77,7 +85,7 @@ class OrderMoreController extends Controller
         $customer->isValid = $this->isValidID($customer->ID); // 將驗證結果存到 isValid 屬性
     }     
        
-          return view('ordermore.index', compact('order','continents','locations','traffics','ordertraffics','customers','tickettypes','local1','local2','ordertours'));
+          return view('ordermore.index', compact('order','continents','locations','traffics','ordertraffics','customers','tickettypes','local1','local2','ordertours','ordersForCopy'));
       
     
     }    
@@ -314,6 +322,69 @@ class OrderMoreController extends Controller
        }
     }
     
+    /**
+     * 將一位旅客複製到另一張訂單。
+     * 只複製旅客基本資料，不複製原訂單的車號、取消狀態等訂單相關欄位。
+     */
+    public function copyCustomer(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|integer|exists:customer,CusId',
+            'target_order_id' => 'required|integer|exists:order,OrderId',
+        ]);
+
+        $customer = DB::table('customer')
+            ->where('CusId', $validated['customer_id'])
+            ->first();
+
+        if (!$customer) {
+            abort(404);
+        }
+
+        $sourceOrderId = $customer->OrderId;
+        $targetOrderId = (int) $validated['target_order_id'];
+
+        if ((int) $sourceOrderId === $targetOrderId) {
+            return redirect()
+                ->route('ordermore.index', ['orderId' => $sourceOrderId])
+                ->withErrors(['target_order_id' => '不能複製到原本的訂單。']);
+        }
+
+        DB::transaction(function () use ($customer, $targetOrderId) {
+            $targetOrder = DB::table('order')
+                ->where('OrderId', $targetOrderId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$targetOrder) {
+                abort(404);
+            }
+
+            DB::table('customer')->insert([
+                'OrderId' => $targetOrderId,
+                'Name' => $customer->Name,
+                'Birthday' => $customer->Birthday,
+                'ID' => $customer->ID,
+                'Sex' => $customer->Sex,
+                'TicketType' => $customer->TicketType,
+                'Phone' => $customer->Phone,
+                'Ps' => $customer->Ps,
+                'CarNo' => null,
+                'CarNo2' => null,
+                'Cancel' => 0,
+                'TM' => 0,
+            ]);
+
+            DB::table('order')
+                ->where('OrderId', $targetOrderId)
+                ->increment('CusNum');
+        });
+
+        return redirect()
+            ->route('ordermore.index', ['orderId' => $sourceOrderId])
+            ->with('status', '旅客資料已複製到目標訂單。');
+    }
+
     public function destroy(Request $request, $OrderTrafficId)
     {
         // 從表單資料中獲取必要的參數
