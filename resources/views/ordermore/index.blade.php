@@ -706,6 +706,14 @@
     </div>
     @endif
 
+    @if (session('status'))
+        <div class="alert alert-success" role="alert">{{ session('status') }}</div>
+    @endif
+
+    @if ($errors->has('target_order_id'))
+        <div class="alert alert-danger" role="alert">{{ $errors->first('target_order_id') }}</div>
+    @endif
+
     <!-- 旅客名冊 -->
     <div class="section-card">
         <div class="section-header">
@@ -807,6 +815,13 @@
                                 <td>{{ $customer->CarNo2 }}</td>
                                 <td>
                                     <div class="action-group">
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-primary btn-sm"
+                                            title="複製旅客到其他訂單"
+                                            onclick="openCopyCustomerDialog({{ $customer->CusId }}, @js($customer->Name))">
+                                            複製
+                                        </button>
                                         @if ($customer->TM != 1)
                                             <form action="{{ route('ordermore.destroy', ['ordermore' => $customer->CusId]) }}" method="POST" style="display:inline;">
                                                 @csrf
@@ -853,4 +868,39 @@
     </div>
 
 </div>
+
+<!-- 複製旅客對話框 -->
+<dialog id="copyCustomerDialog" style="width:min(520px, calc(100% - 32px));border:1px solid #d0d0d0;border-radius:8px;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.18);">
+    <form method="POST" action="{{ route('ordermore.copyCustomer') }}">
+        @csrf
+        <h4 style="margin-top:0;">複製旅客資料</h4>
+        <p>旅客：<strong id="copyCustomerName"></strong></p>
+        <input type="hidden" name="customer_id" id="copyCustomerId">
+
+        <label for="copyTargetOrder" style="display:block;margin-bottom:8px;">目標訂單</label>
+        <select name="target_order_id" id="copyTargetOrder" class="form-select" required style="width:100%;margin-bottom:18px;">
+            <option value="">請選擇目標訂單</option>
+            @foreach ($ordersForCopy as $copyOrder)
+                <option value="{{ $copyOrder->OrderId }}">
+                    訂單 #{{ $copyOrder->OrderId }}｜{{ $copyOrder->GroupName }}｜{{ $copyOrder->OrderStart }}
+                </option>
+            @endforeach
+        </select>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+            <button type="button" class="btn btn-light" onclick="document.getElementById('copyCustomerDialog').close()">取消</button>
+            <button type="submit" class="btn btn-primary" onclick="return confirm('確定要將這位旅客複製到所選訂單嗎？')">確認複製</button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+    function openCopyCustomerDialog(customerId, customerName) {
+        document.getElementById('copyCustomerId').value = customerId;
+        document.getElementById('copyCustomerName').textContent = customerName || '';
+        document.getElementById('copyTargetOrder').value = '';
+        document.getElementById('copyCustomerDialog').showModal();
+    }
+</script>
+
 @endsection
