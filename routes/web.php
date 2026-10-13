@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/vbill', [VbillController::class, 'index'])->name('vbill');
 
     Route::post('/ordermore/import/{OrderId}/{date}', [OrderMoreController::class, 'import'])->name('ordermore.import');
+    Route::post('/ordermore/copy-customer', [OrderMoreController::class, 'copyCustomer'])->name('ordermore.copyCustomer');
     Route::post('/flight/renew', [FlightController::class, 'renew'])->name('flight.renew');
 
     Route::get('/search-continent', [SearchHotelController::class, 'SearchHotelWithoutContinent'])->name('search-continent-no-param');
